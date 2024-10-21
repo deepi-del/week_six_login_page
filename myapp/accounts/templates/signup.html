@@ -1,11 +1,13 @@
-<!-- accounts/templates/accounts/signup.html -->
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Sign Up</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
 <body>
+    <div class="signup-container">
     <h1>Sign Up</h1>
     <form method="post">
         {% csrf_token %}
@@ -28,5 +30,7 @@
             </ul>
         </div>
     {% endif %}
+    <a href="{% url 'login' %}"> Have an account? Login here</a>
+  </div>
 </body>
 </html>
