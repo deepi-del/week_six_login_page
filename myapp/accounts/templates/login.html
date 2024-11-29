@@ -7,15 +7,25 @@
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
 <body>
-    <div class="login-container">
-    <h2>Login</h2>
-    <form method="POST">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Login</button>
-    </form>
-    <a href="{% url 'signup' %}">Don't have an account? Signup here</a>
+    <div class="login-container mt-5">
+        <div class="row justify-content-center">
+                   <h2>Login</h2>
+            <form method="POST">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit">Login</button>
+            </form>
+             <a href="{% url 'signup' %}">Don't have an account? Signup here</a>
+        </div>
     </div>
+    <script>
+        window.onload = function() {
+            const passwordField = document.querySelector("input[type='password']");
+            if (passwordField) {
+                passwordField.value = '';  
+            }
+        };
+    </script>
 </body>
 </html>
 
