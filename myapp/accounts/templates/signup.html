@@ -1,20 +1,22 @@
-<!-- accounts/templates/accounts/signup.html -->
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Sign Up</title>
+    <link rel="stylesheet" href="{% static 'css/signup.css' %}">
 </head>
 <body>
+    <div class="signup-container">
     <h1>Sign Up</h1>
     <form method="post">
         {% csrf_token %}
-        {{ form.as_p }}  <!-- This will display the form fields -->
+        {{ form.as_p }}  
         <button type="submit">Sign Up</button>
     </form>
     
     {% if form.errors %}
-        <div>
+    <div class="error-messages">
             <p>There were errors in your form:</p>
             <ul>
             {% for field in form %}
@@ -26,7 +28,9 @@
                 <li>{{ error }}</li>
             {% endfor %}
             </ul>
-        </div>
+    </div>
     {% endif %}
+    <a href="{% url 'login' %}"> Have an account? Login here</a>
+  </div>
 </body>
 </html>

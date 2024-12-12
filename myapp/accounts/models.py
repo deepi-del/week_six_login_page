@@ -9,9 +9,9 @@ class CustomUser(AbstractUser):
     def __str__(self):
         return self.username
 
-# Admin Profile Model
+# Admin  Model
 class AdminProfile(models.Model):
-    user = models.OneToOneField('accounts.CustomUser', on_delete=models.CASCADE)  # Use string reference here
+    user = models.OneToOneField('accounts.CustomUser', on_delete=models.CASCADE)  
     department = models.CharField(max_length=100, blank=True, null=True)
     is_superuser = models.BooleanField(default=True)
 

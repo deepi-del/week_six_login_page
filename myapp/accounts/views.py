@@ -1,48 +1,68 @@
-# accounts/views.py
+
 from django.shortcuts import render, redirect,get_object_or_404
 from django.contrib.auth import login,logout,authenticate
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.decorators import login_required
 from .forms import CustomUserCreationForm
 from .models import CustomUser 
+from django.views.decorators.cache import never_cache
+from django.views.decorators.cache import cache_control
+
 
 def signup_view(request):
-    form = CustomUserCreationForm()  # Default form initialization
+    #  away from the signup page
+    if request.user.is_authenticated:
+        return redirect('home' if not request.user.is_superuser else 'admin_home')
 
-    if request.method == 'POST':
-        form = CustomUserCreationForm(request.POST)  # Reinitialize with POST data
-        if form.is_valid():
-            user = form.save()
-            login(request, user)  # Log the user in after signup
-            return redirect('login')  # Ensure this URL name matches your URL patterns
-        else:
-            # Print form errors for debugging
-            print("Form errors:", form.errors)  # Now this will always have a value
-
+    #  form 
+    form = CustomUserCreationForm(request.POST or None)
+    if request.method == 'POST' and form.is_valid():
+        user = form.save()
+        login(request, user)
+        return redirect('home' if not user.is_superuser else 'admin_home')
+    
     return render(request, 'signup.html', {'form': form})
+
+@never_cache
 def login_view(request):
-    if request.method == 'POST':
-        form = AuthenticationForm(request, data=request.POST)
-        if form.is_valid():
-            user = form.get_user()
-            login(request, user)
-            if user.is_superuser:
-                return redirect('admin_home') 
-            return redirect('home')  # Adjust the redirect as per your URLs
-    else:
-        form = AuthenticationForm()
+    # Redirect already 
+    if request.user.is_authenticated:
+        return redirect('admin_home' if request.user.is_superuser else 'home')
+
+    #  login form 
+    form = AuthenticationForm(request, data=request.POST or None)
+    if request.method == 'POST' and form.is_valid():
+        user = form.get_user()
+        login(request, user)
+        #  after login
+        return redirect('admin_home' if user.is_superuser else 'home')
+    
     return render(request, 'login.html', {'form': form})
 
-@login_required
+
+
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@never_cache
+@login_required(login_url='login')
+
 def home_view(request):
      if request.user.is_superuser:
-        return redirect('admin_home')  # Redirect to admin home
+        return redirect('admin_home')  
      return render(request, 'home.html', {'user': request.user})
-@login_required
+
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@never_cache
+@login_required(login_url='login')
 def admin_home_view(request):
-    users = CustomUser.objects.all()
+    query = request.GET.get('q')  
+    if query:
+        users = CustomUser.objects.filter(username__icontains=query)  
+    else:
+        users = CustomUser.objects.all()  
+
     return render(request, 'admin_home.html', {'users': users, 'user': request.user})
-@login_required
+
+@never_cache 
 def create_user_view(request):
     if request.method == 'POST':
         form = CustomUserCreationForm(request.POST)
@@ -52,7 +72,8 @@ def create_user_view(request):
     else:
         form = CustomUserCreationForm()
     return render(request, 'create_user.html', {'form': form})
-@login_required
+
+@never_cache 
 def update_user_view(request, user_id):
     user = get_object_or_404(CustomUser, id=user_id)
     if request.method == 'POST':
@@ -63,7 +84,8 @@ def update_user_view(request, user_id):
     else:
         form = CustomUserCreationForm(instance=user)
     return render(request, 'update_user.html', {'form': form, 'user': user})
-@login_required
+
+@never_cache 
 def delete_user_view(request, user_id):
     user = get_object_or_404(CustomUser, id=user_id)
     if request.method == 'POST':
@@ -71,6 +93,11 @@ def delete_user_view(request, user_id):
         print(f"User with ID {user_id} deleted.") 
         return redirect('admin_home')
     return render(request, 'delete_user.html')
+
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@never_cache
+@login_required(login_url='login')
 def logout_view(request):
     logout(request)
-    return redirect('login')  # Adjust the redirect as per your URLs
+    request.session.flush()  
+    return redirect('login')

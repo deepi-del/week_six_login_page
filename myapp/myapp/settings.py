@@ -52,6 +52,9 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.middleware.cache.FetchFromCacheMiddleware',
+    'django.middleware.cache.UpdateCacheMiddleware',
+    
 ]
 
 ROOT_URLCONF = 'myapp.urls'
@@ -125,8 +128,18 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
 STATIC_URL = 'static/'
+STATICFILES_DIRS = [
+    BASE_DIR / "accounts"  / "static",  # Adjusted path to the static directory
+]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+# # Sessions settings
+# SESSION_ENGINE = "django.contrib.sessions.backends.cached_db"
+# SESSION_COOKIE_SECURE = True  # Enforces HTTPS for session cookies
+# SESSION_COOKIE_HTTPONLY = True  # Restricts JavaScript access to session cookies
+# SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # Logs out when browser closes
